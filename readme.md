@@ -76,10 +76,29 @@
 
 ## 💻 Локальне розгортання
 
+Існує два шляхи розгортання проєкту: за допомогою **Docker** (найпростіший та найшвидший) або **вручну** через Node.js.
+
+### Варіант А: Швидкий запуск через Docker 
+
+Якщо у вас встановлено **Docker** та **Docker Compose**, ви можете підняти увесь проєкт однією командою:
+
+```bash
+# 1. Клонування репозиторію
+git clone [https://github.com/Alexmag75/FinalProject.git](https://github.com/Alexmag75/FinalProject.git) piyachok
+cd piyachok
+
+# 2. Налаштування середовища (створіть .env на основі прикладу)
+cp .env.example .env   # або створіть .env вручну та вкажіть змінні
+
+# 3. Запуск контейнерів
+docker-compose up -d --build
+
+Варіант Б: Ручне розгортання через Node.js
+
 1. **Клонування репозиторію:**
    ```bash
    git clone https://github.com/Alexmag75/FinalProject.git piyachok-clean
-   cd piyachok
+   cd piyachok-clean
 
 2. **Встановлення залежностей:** 
     npm install
