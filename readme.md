@@ -78,7 +78,7 @@
 
 1. **Клонування репозиторію:**
    ```bash
-   git clone [https://github.com/your-username/piyachok.git](https://github.com/your-username/piyachok.git)
+   git clone https://github.com/Alexmag75/FinalProject.git piyachok-clean
    cd piyachok
 
 2. **Встановлення залежностей:** 
