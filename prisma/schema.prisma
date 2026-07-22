@@ -1,0 +1,274 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  MANAGER
+  SUPERADMIN
+}
+
+enum VenueType {
+  BAR
+  RESTAURANT
+  PUB
+  CAFE
+  CLUB
+}
+
+enum VenueStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NewsType {
+  GENERAL
+  PROMO
+  EVENT
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  password     String?
+  name         String?
+  role         Role       @default(USER)
+  isBanned     Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  isVerified   Boolean    @default(false)
+  tokenVersion Int        @default(0)
+  sessions     Session[]
+  isBlocked    Boolean    @default(false)
+  accounts     Account[]
+  avatarUrl    String?
+  phoneNumber  String?
+  venues       Venue[]    @relation("UserVenues")
+  reviews      Review[]
+  favorites    Favorite[]
+  meetups      Meetup[]
+  Venue        Venue[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Venue {
+  id               String             @id @default(uuid())
+  name             String
+  mainImage        String
+  images           Json               @default("[]")
+  address          String
+  latitude         Float?
+  longitude        Float?
+  workingHours     String
+  phone            String?
+  averageCheck     Int
+  status           VenueStatus        @default(PENDING)
+  views            Int                @default(0)
+  type             VenueType          @default(BAR)
+  createdAt        DateTime           @default(now())
+  description      String?            @db.Text
+  hasWifi          Boolean            @default(false)
+  hasParking       Boolean            @default(false)
+  hasMusic         Boolean            @default(false)
+  isApproved       Boolean            @default(false)
+  userId           String
+  manager          User               @relation("UserVenues", fields: [userId], references: [id], onDelete: Cascade, map: "Venue_manager_fkey")
+  reviews          Review[]
+  favorites        Favorite[]
+  news             News[]
+  meetups          Meetup[]
+  tags             Tag[]              @relation("VenueTags")
+  viewsHistory     VenueView[]
+  topCategories    TopCategory[]      @relation("VenueTopCategories")
+  rating           Float              @default(0.0)
+  messages         VenueMessage[]
+  User             User               @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Venue_user_fkey")
+  isBlocked        Boolean            @default(false)
+  CategoryOnVenues CategoryOnVenues[]
+}
+
+model Review {
+  id              String   @id @default(uuid())
+  rating          Int
+  text            String   @db.Text
+  receipt         String?
+  isComplaint     Boolean  @default(false)
+  complaintReason String?  @db.Text
+  createdAt       DateTime @default(now())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venueId         String
+  venue           Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  id      String @id @default(uuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venueId String
+  venue   Venue  @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, venueId])
+}
+
+model Tag {
+  id     String  @id @default(uuid())
+  name   String  @unique
+  venues Venue[] @relation("VenueTags")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+}
+
+model VenueView {
+  id        String   @id @default(uuid())
+  venueId   String
+  userIp    String?
+  venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model TopCategory {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  venues    Venue[]  @relation("VenueTopCategories")
+  createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+enum GenderCriteria {
+  ANY
+  MALE
+  FEMALE
+}
+
+enum PaymentCriteria {
+  EACH_OWN
+  I_PAY
+  YOU_PAY
+}
+
+model Meetup {
+  id          String          @id @default(uuid())
+  venueId     String
+  venue       Venue           @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateTime    DateTime
+  description String?         @db.Text
+  contactInfo String
+  gender      GenderCriteria  @default(ANY)
+  companySize Int
+  whoPays     PaymentCriteria @default(EACH_OWN)
+  budget      Int
+  createdAt   DateTime        @default(now())
+}
+
+enum NewsCategory {
+  GENERAL
+  PROMOTION
+  EVENT
+}
+
+model News {
+  id         String       @id @default(uuid())
+  title      String
+  content    String       @db.Text
+  isPromoted Boolean      @default(false)
+  image      String?
+  category   NewsCategory @default(GENERAL)
+  venueId    String
+  venue      Venue        @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model SystemText {
+  slug      String   @id
+  title     String
+  content   String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+enum MessageType {
+  COMPLAINT
+  QUESTION
+}
+
+model VenueMessage {
+  id        String      @id @default(uuid())
+  name      String
+  email     String
+  content   String      @db.Text
+  type      MessageType @default(QUESTION)
+  isRead    Boolean     @default(false)
+  venueId   String
+  venue     Venue       @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+}
+
+model Category {
+  id          String             @id @default(uuid())
+  name        String
+  description String?
+  venues      CategoryOnVenues[]
+}
+
+model CategoryOnVenues {
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  venueId    String
+  venue      Venue    @relation(fields: [venueId], references: [id])
+
+  @@id([categoryId, venueId])
+}

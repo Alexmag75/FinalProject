@@ -1,0 +1,3678 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Piyachok API",
+    "description": "Документация backend-платформы проекта Piyachok."
+  },
+  "host": "localhost:3000",
+  "basePath": "/api",
+  "tags": [
+    { "name": "Admin", "description": "Адміністративна панель та аналітика" },
+    { "name": "Auth", "description": "Аутентифікація та авторизація користувачів (реєстрація, вхід, оновлення токенів)" },
+    { "name": "Categories", "description": "Операції з категоріями закладів" },
+    { "name": "Feedback", "description": "Форми зворотного зв'язку та звернення користувачів" },
+    { "name": "Meetups", "description": "Організація та пошук спільних зустрічей користувачів (П'ячок)" },
+    { "name": "Messages", "description": "Зв'язок користувачів з менеджерами закладів (Питання, Бронювання, Пропозиції)" },
+    { "name": "News", "description": "Управління новинами, акціями та їх просуванням у топ" },
+    { "name": "SystemText", "description": "Керування статичними та системними текстами сторінок (Про нас, Контакти, Правила тощо)" },
+    { "name": "Tags", "description": "Керування тегами для класифікації закладів та подій" },
+    { "name": "Upload", "description": "Генерація підписаних S3-посилань для прямого та безпечного завантаження зображень" },
+    { "name": "Favorites", "description": "Керування списком обраних закладів користувача (Вподобайки)" },
+    { "name": "Users", "description": "Управління профілем користувача та його персональними даними" },
+    { "name": "Reviews", "description": "Управління відгуками та оцінками користувачів до закладів" },
+    { "name": "Venues", "description": "Управління закладами" }
+  ],
+
+  "schemes": ["http"],
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Введіть токен у форматі: Bearer <AccessToken>"
+    }
+  },
+  "paths": {
+    "/admin/analytics": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримання статистики переглядів закладів",
+        "description": "Повертає згруповану статистику переглядів за вказаний період. Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "ID конкретного закладу для фільтрації"
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 7,
+            "description": "Кількість днів для аналізу (за замовчуванням 7)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успішне отримання аналітики",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "periodDays": { "type": "integer", "example": 7 },
+                "totalViews": { "type": "integer", "example": 42 },
+                "chartData": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": { "type": "string", "example": "2026-07-15" },
+                      "count": { "type": "integer", "example": 5 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено (необхідна роль SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/categories": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримання списку категорій (добірок)",
+        "description": "Повертає список усіх категорій, включаючи перші 4 заклади у кожній. Роут публічний.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Список категорій успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "categories": {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/CategoryWithVenues" }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Створення нової категорії (добірки)",
+        "description": "Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string", "example": "П'ятничний движ" },
+                "description": { "type": "string", "example": "Найкращі бари та паби для відпочинку наприкінці тижня" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Категорія успішно створена",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "category": { "$ref": "#/definitions/Category" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Прив'язка закладу до категорії",
+        "description": "Зв'язує заклад і добірку через таблицю багатьом. Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["categoryId", "venueId"],
+              "properties": {
+                "categoryId": { "type": "string", "example": "cat-123-uuid" },
+                "venueId": { "type": "string", "example": "venue-456-uuid" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Заклад успішно додано до збірки",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Заклад додано до підбірки" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/news/{newsId}": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Редагування новини адміністратором",
+        "description": "Оновлює заголовок, вміст, категорію чи зображення новини.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "newsId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID новини, яку необхідно оновити"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["title", "content"],
+              "properties": {
+                "title": { "type": "string", "example": "Грандіозне відкриття нового арт-простору" },
+                "content": { "type": "string", "example": "Вже цієї п'ятниці відбудеться..." },
+                "category": { "type": "string", "example": "Події" },
+                "image": { "type": "string", "example": "https://example.com/image.jpg" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Новина успішно оновлена",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Успішно оновлено адміністратором" },
+                "news": { "$ref": "#/definitions/News" }
+              }
+            }
+          },
+          "400": {
+            "description": "Не передані обов'язкові поля (заголовок чи текст)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Примусове видалення новини",
+        "description": "Видаляє новину із системи за її UUID. Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "newsId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID новини, яку потрібно видалити"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Новина успішно видалена",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Новину успішно видалено адміністратором" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено (необхідна роль SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Помилка при видаленні",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/reviews/{reviewId}": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Редактирование отзыва администратором (цензурирование)",
+        "description": "Дозволяє SUPERADMIN змінити текст відкликання. Доступно лише для супер-адміністраторів.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID відгуку, який потрібно відредагувати"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["text"],
+              "properties": {
+                "text": { "type": "string", "example": "Цей відгук був редагований модератором за порушення правил." }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Відгук успішно відредаговано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Відгук відредаговано адміністратором" },
+                "review": { "$ref": "#/definitions/Review" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Повне видалення відгуку адміністратором",
+        "description": "Видаляє відгук із системи за його UUID. Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID відгуку, який потрібно видалити"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Відгук успішно видалено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Відгук видалено адміністратором" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Помилка на стороні сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/users/{id}": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Модерація користувача (зміна ролі або бан)",
+        "description": "Дозволяє SUPERADMIN змінити роль користувача або забанити його. При лазні скидаються усі активні сесії користувача. Не можна змінити статус свого облікового запису.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID (UUID) модерованого користувача"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": ["USER", "MANAGER", "SUPERADMIN"],
+                  "example": "MANAGER"
+                },
+                "isBanned": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Користувач успішно оновлено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Дані користувача успішно оновлено" },
+                "user": { "$ref": "#/definitions/User" }
+              }
+            }
+          },
+          "400": {
+            "description": "Спроба модерувати себе чи недійсна роль",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (необхідна роль SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Користувач не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Повне видалення облікового запису користувача",
+        "description": "Видаляє користувача та каскадно всі пов'язані з ним дані (обговрення, зустрічі, заклади). Доступно лише для SUPERADMIN. Не можна видалити себе.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID (UUID) користувача, що видаляється"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Користувач успішно видалено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Користувач та всі його дані успішно видалені" }
+              }
+            }
+          },
+          "400": {
+            "description": "Спроба видалити власний обліковий запис",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримання списку користувачів з пагінацією та фільтрами",
+        "description": "Дозволяє SUPERADMIN отримувати список користувачів системи. Підтримує пошук на ім'я/email, фільтрацію за ролями та статусом бана.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 1,
+            "description": "Номер сторінки для пагінації"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 15,
+            "description": "Кількість користувачів на одній сторінці"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "Пошуковий запит (шукає по email або name без урахування регістру)"
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": ["USER", "MANAGER", "SUPERADMIN"],
+            "description": "Фільтр по ролі користувача"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": ["ACTIVE", "BANNED"],
+            "description": "Фільтр за статусом активності облікового запису"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список користувачів успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "user-abc-123-uuid" },
+                      "name": { "type": "string", "example": "Олександр" },
+                      "email": { "type": "string", "example": "alex@gmail.com" },
+                      "role": { "type": "string", "example": "USER" },
+                      "isBanned": { "type": "boolean", "example": false },
+                      "createdAt": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                },
+                "pagination": { "$ref": "#/definitions/Pagination" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено (потрібні права супер-адміну)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/venues": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримання повного списку закладів для адміністрування",
+        "description": "Повертає список усіх закладів у системі з пагінацією, фільтрами за наявністю менеджера, статусом модерації та пошуком. Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 1,
+            "description": "Номер сторінки"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 10,
+            "description": "Кількість закладів на сторінку"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "Пошук за назвою, адресою закладу або email менеджера"
+          },
+          {
+            "name": "managerFilter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": ["ALL", "WITH_MANAGER", "NO_MANAGER"],
+            "default": "ALL",
+            "description": "Фільтр за наявності прив'язаного менеджера"
+          },
+          {
+            "name": "statusFilter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": ["ALL", "APPROVED", "PENDING"],
+            "default": "ALL",
+            "description": "Фільтр за статусом модерації закладу"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список закладів успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "venues": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "venue-123-uuid" },
+                      "name": { "type": "string", "example": "П'яний Лис" },
+                      "address": { "type": "string", "example": "вул. Садова, 12" },
+                      "isApproved": { "type": "boolean", "example": true },
+                      "userId": { "type": "string", "example": "user-789-uuid" },
+                      "manager": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "example": "user-789-uuid" },
+                          "name": { "type": "string", "example": "Дмитро" },
+                          "email": { "type": "string", "example": "manager@gmail.com" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "pagination": { "$ref": "#/definitions/Pagination" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено (потрібна роль SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/venues/{id}": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Модерація закладу (схвалення чи блокування)",
+        "description": "Дозволяє SUPERADMIN схвалити публікацію закладу (isApproved: true) або заблокувати/приховати його. Використовується для підтвердження закладів від менеджерів.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID модерованого закладу"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["isApproved"],
+              "properties": {
+                "isApproved": {
+                  "type": "boolean",
+                  "example": true,
+                  "description": "Статус схвалення закладу"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус закладу успішно оновлено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Заклад \"П'яний Лис\" успішно схвалено та опубліковано!" },
+                "venue": { "$ref": "#/definitions/VenueMini" }
+              }
+            }
+          },
+          "400": {
+            "description": "Параметр isApproved не передано в тілі запиту",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (потрібні права супер-адміністратора)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Видалення закладу адміністратором",
+        "description": "Видаляє заклад із системи за його UUID. Видалення каскадне (видаляться всі відгуки, новини, зустрічі). Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID закладу, який потрібно видалити"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Заклад успішно видалено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Заклад успішно видалено адміністратором" }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Помилка при видаленні",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/venues/{id}/rating": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Встановлення рейтингу закладу адміністратором",
+        "description": "Дозволяє SUPERADMIN примусово встановити рейтинг конкретного закладу. Значення має бути числом від 1 до 5.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID закладу, якому потрібно змінити рейтинг"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["newRating"],
+              "properties": {
+                "newRating": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 5,
+                  "example": 4.5,
+                  "description": "Новий рейтинг закладу (від 1 до 5)"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Рейтинг успішно змінено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Рейтинг закладу встановлено на 4.5" }
+              }
+            }
+          },
+          "400": {
+            "description": "Неправильний формат рейтингу (не число або виходить за межі 1-5)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (потрібні права супер-адміністратора)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/venues/{id}/transfer": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Передача прав володіння закладом іншому користувачеві",
+        "description": "Дозволяє SUPERADMIN примусово змінити власника закладу (поле userId). На вході вимагає UUID нового власника.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID заклади, права на які передаються"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["newUserId"],
+              "properties": {
+                "newUserId": {
+                  "type": "string",
+                  "example": "user-999-new-owner-uuid",
+                  "description": "UUID користувача, який стане новим власником закладу"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Права володіння успішно передані",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Права на заклад успішно передані користувачу Олександр" }
+              }
+            }
+          },
+          "400": {
+            "description": "Не вказано ID нового власника",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (потрібні права супер-адміністратора)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад або новий власник не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/venues/pending": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримання списку закладів, які чекають на схвалення",
+        "description": "Повертає список усіх закладів зі статусом isApproved: false. Також включає інформацію про менеджера, який їх створив. Доступно тільки для SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список закладів, що очікують, успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "venues": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "venue-456-uuid" },
+                      "name": { "type": "string", "example": "П'яний Лис" },
+                      "address": { "type": "string", "example": "вул. Садова, 12" },
+                      "isApproved": { "type": "boolean", "example": false },
+                      "manager": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "example": "user-789-uuid" },
+                          "name": { "type": "string", "example": "Дмитро" },
+                          "email": { "type": "string", "example": "manager@gmail.com" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ заборонено (потрібні права супер-адміністратора)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Реєстрація нового користувача",
+        "description": "Створює обліковий запис користувача зі статусом `isVerified: false`. Генерує одноразовий токен верифікації та надсилає посилання підтвердження на вказаний email.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "newuser@example.com",
+                  "description": "Електронна пошта нового користувача"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password",
+                  "example": "mySuperSecretPassword123",
+                  "description": "Пароль (буде захешований за допомогою bcrypt)"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Дмитро",
+                  "description": "Ім'я користувача"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": ["USER", "MANAGER"],
+                  "default": "USER",
+                  "description": "За замовчуванням роль при реєстрації"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Користувач успішно створено, лист відправлено або створено, але виникла помилка поштового сервера",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Реєстрація успішна. Будь ласка, перевірте вашу пошту."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не передані обов'язкові поля чи користувач з таким email вже існує",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/verify": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Підтвердження Email (Email Verification)",
+        "description": "Приймає токен верифікації у Query-параметрах. Перевіряє валідність токена, активує обліковий запис користувача (`isVerified: true`) та видаляє використаний токен з бази даних.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Секретний токен підтвердження, надісланий користувачеві на пошту"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email успішно підтверджено. Обліковий запис активовано.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Email успішно підтверджено! Тепер ви можете увійти у свій аккаунт."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Токен відсутній, недійсний або термін його дії закінчився",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Скидання пароля (Reset Password)",
+        "description": "Приймає одноразовий токен скидання з пошти та новий пароль. Перевіряє валідність токена та його термін дії. У разі успіху оновлює пароль користувача та видаляє токен.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["token", "newPassword"],
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "example": "a5e8f49b1c02e3f...",
+                  "description": "Секретний токен відновлення, отриманий у листі"
+                },
+                "newPassword": {
+                  "type": "string",
+                  "format": "password",
+                  "example": "MyNewSecurePassword2026",
+                  "description": "Новий пароль користувача (мінімальна довжина на розсуд фронтенду буде захешовано)"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Пароль успішно оновлено. Можна виконувати вхід.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Пароль успішно змінено. Тепер ви можете увійти з новим паролем." }
+              }
+            }
+          },
+          "400": {
+            "description": "Не передані обов'язкові поля, токен немає або термін дії токена минув",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Запит на відновлення пароля(Forgot Password)",
+        "description": "Ініціює процес скидання пароля. Якщо email існує в системі, генерує безпечний одноразовий токен з терміном дії 1 годину, зберігає його в БД (видаляючи старі токени цього користувача) та відправляє посилання на пошту.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["email"],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "user@example.com",
+                  "description": "Email користувача, який забув пароль"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Запит успішно опрацьовано. Лист відправлений (якщо користувач існує).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Лист для скидання пароля успішно надіслано."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не передано обов'язковий параметр email",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Оновлення пари токенів (Refresh Token Rotation)",
+        "description": "Приймає старий Refresh Token (з тіла запиту або автоматично з HttpOnly кук), перевіряє його валідність та статус бана користувача. У разі успіху генерує нову пару токенів, перезаписує куку та повертає нові ключі.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "description": "Необов'язково. Передається, якщо клієнт не може використовувати cookie HttpOnly автоматично."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Токени успішно оновлено. Нова кука `refreshToken` встановлена.",
+            "headers": {
+              "Set-Cookie": {
+                "type": "string",
+                "description": "Оновлює куку `refreshToken` новими даними."
+              }
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "accessToken": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new_access_token..."
+                },
+                "backendRefreshSecretString": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new_refresh_token...",
+                  "description": "Новий Refresh Token для фронтенду"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Токен відсутній, недійсний, прострочений, або користувач забанен/удален",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Авторизація користувача (Вхід)",
+        "description": "Перевіряє email та пароль користувача. Повертає короткочасний Access Token у форматі JWT в JSON-відповіді та автоматично встановлює довготривалий Refresh Token у захищені куки (HttpOnly cookie).",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "user@example.com",
+                  "description": "Електронна пошта користувача"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password",
+                  "example": "mySecurePassword123",
+                  "description": "Пароль користувача"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Вхід успішний. Повертається Access Token та інформація про користувача. В куки записується `refreshToken`.",
+            "headers": {
+              "Set-Cookie": {
+                "type": "string",
+                "description": "Встановлює куку `refreshToken` (httpOnly, secure, sameSite=strict, path=/)"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Вхід успішний" },
+                "accessToken": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+                "refreshToken": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "user-uuid-12345" },
+                    "email": { "type": "string", "format": "email", "example": "user@example.com" },
+                    "name": { "type": "string", "example": "Олександр" },
+                    "role": { "type": "string", "example": "USER" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не передано обов'язкові поля (email або пароль)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неправильний Email або пароль",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Email не підтверджено (потрібна верифікація)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Вихід із системи (Logout)",
+        "description": "Завершує сесію користувача: знаходить та видаляє активну сесію з бази даних за значенням `refreshToken` з кук, після чого очищає саму куку на стороні клієнта (встановлює Max-Age=0).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Успішний вихід із системи. Кука `refreshToken` стёрта.",
+            "headers": {
+              "Set-Cookie": {
+                "type": "string",
+                "description": "Стирає куку: `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict; Secure`"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Успішний вихід із системи" }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/logout-all": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Вихід з усіх пристроїв (Logout All)",
+        "description": "Завершує сесії користувача на всіх пристроях. Видаляє всі зв'язані сесії з бази даних (таблиця Session) і стирає поточну куку `refreshToken` на пристрої, що запитує. Потребує авторизації(Bearer Access Token).",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Успішний вихід із усіх пристроїв. Усі сесії в БД анульовані, кука очищена.",
+            "headers": {
+              "Set-Cookie": {
+                "type": "string",
+                "description": "Стирає куку: `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict; Secure`"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Успішний вихід з усіх пристроїв" }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (невірний або відсутній) Access Token)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "400": {
+            "description": "Не вдалося визначити ID користувача",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/delete": {
+      "delete": {
+        "tags": ["Auth"],
+        "summary": "Видалення власного облікового запису(GDPR)",
+        "description": "Дозволяє авторизованому користувачеві повністю видалити свій обліковий запис із системи. Видаляє всі пов'язані дані з бази даних та очищає куку сесії `refreshToken`.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Обліковий запис та всі пов'язані дані успішно видалені. Кука очищена.",
+            "headers": {
+              "Set-Cookie": {
+                "type": "string",
+                "description": "Стирає куку: `refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict; Secure`"
+              }
+            },
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Акаунт та всі повʼязані дані успішно видалено" }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (недійсний або відсутній) Access Token)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "400": {
+            "description": "Не вдалося визначити ID користувача з токена",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера (наприклад, помилка каскадного видалення БД)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Отримання категорії з ID",
+        "description": "Повертає детальну інформацію про категорію за її UUID, включаючи список усіх пов'язаних з нею закладів..",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "UUID категорії"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Категорія успішно знайдена",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "category": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "cat-111-uuid" },
+                    "name": { "type": "string", "example": "Пабы и бары" },
+                    "venues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "venue": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string", "example": "venue-456-uuid" },
+                              "name": { "type": "string", "example": "П'яний Лис" },
+                              "address": { "type": "string", "example": "вул. Садова, 12" },
+                              "rating": { "type": "number", "example": 4.8 },
+                              "isApproved": { "type": "boolean", "example": true }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID категорії не вказано",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Категорія не знайдена",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Отримання списку всіх категорій",
+        "description": "Повертає повний список існуючих категорій (добірок) з усіма пов'язаними закладами.",
+        "responses": {
+          "200": {
+            "description": "Список категорій успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "categories": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "cat-111-uuid" },
+                      "name": { "type": "string", "example": "Пабы и бары" },
+                      "venues": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "venue": {
+                              "type": "object",
+                              "properties": {
+                                "id": { "type": "string", "example": "venue-456-uuid" },
+                                "name": { "type": "string", "example": "П'яний Лис" },
+                                "address": { "type": "string", "example": "вул. Садова, 12" },
+                                "rating": { "type": "number", "example": 4.8 },
+                                "isApproved": { "type": "boolean", "example": true }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/feedback": {
+      "post": {
+        "tags": ["Feedback"],
+        "summary": "Надсилання повідомлення до служби підтримки (тільки для авторизованих)",
+        "description": "Приймає звернення від користувачів. Доступно лише авторизованим користувачам. Лист з деталями та ID відправника пересилається на email адміністратора.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["name", "email", "category", "message"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Иван",
+                  "description": "Ім'я відправника"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "ivan@example.com",
+                  "description": "Контактний email для зв'язку"
+                },
+                "category": {
+                  "type": "string",
+                  "example": "Скарга / Пропозиція",
+                  "description": "Категорія звернення"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Не можу оновити дані свого профілю.",
+                  "description": "Текст повідомлення"
+                },
+                "venueId": {
+                  "type": "string",
+                  "example": "venue-456-uuid",
+                  "description": "Опціонально. ID закладу, до якого належить звернення"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Звертання успішно відправлено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Ваше звернення успішно надіслано!" }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (відсутній або недійсний)Access Token)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "400": {
+            "description": "Не заповнені обов'язкові поля",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Вказаний заклад (venueId) не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/meetups": {
+      "get": {
+        "tags": ["Meetups"],
+        "summary": "Отримання списку актуальних зустрічей",
+        "description": "Повертає список майбутніх зустрічей (починаючи з сьогоднішнього дня) з підтримкою фільтрації із закладу, розміром компанії та бюджетом, а також пагінацією. Доступно лише авторизованим користувачам.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "Фільтр по ID закладу"
+          },
+          {
+            "name": "companySize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "description": "Фільтр за точною кількістю учасників"
+          },
+          {
+            "name": "maxBudget",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "description": "Максимальний бюджет зустрічі (у гривнях)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 1,
+            "description": "Номер сторінки для пагінації"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 9,
+            "description": "Кількість зустрічей на одну сторінку"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список зустрічей успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "meetups": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "meetup-111" },
+                      "venueId": { "type": "string", "example": "venue-456" },
+                      "userId": { "type": "string", "example": "user-789" },
+                      "dateTime": { "type": "string", "format": "date-time", "example": "2026-07-20T19:00:00.000Z" },
+                      "description": { "type": "string", "example": "Собираемся на крафтовое пиво!" },
+                      "contactInfo": { "type": "string", "example": "Telegram: @nickname" },
+                      "gender": { "type": "string", "example": "ANY" },
+                      "companySize": { "type": "integer", "example": 4 },
+                      "whoPays": { "type": "string", "example": "EACH_OWN" },
+                      "budget": { "type": "integer", "example": 500 },
+                      "venue": {
+                        "type": "object",
+                        "properties": {
+                          "name": { "type": "string", "example": "П'яний Лис" },
+                          "address": { "type": "string", "example": "вул. Садова, 12" },
+                          "mainImage": { "type": "string", "example": "/uploads/fox.jpg" }
+                        }
+                      },
+                      "user": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "example": "user-789" },
+                          "name": { "type": "string", "example": "Дмитро" },
+                          "avatarUrl": { "type": "string", "example": "/avatars/user.jpg" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": { "type": "integer", "example": 1 },
+                    "totalPages": { "type": "integer", "example": 3 },
+                    "totalItems": { "type": "integer", "example": 25 },
+                    "hasNextPage": { "type": "boolean", "example": true },
+                    "hasPrevPage": { "type": "boolean", "example": false }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (потрібенAccess Token)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Meetups"],
+        "summary": "Створення нової зустрічі",
+        "description": "Дозволяє авторизованому користувачеві створити картку майбутньої зустрічі у конкретному закладі.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["venueId", "date", "time", "contactInfo", "companySize", "budget"],
+              "properties": {
+                "venueId": { "type": "string", "example": "venue-456", "description": "ID заведения из базы" },
+                "date": { "type": "string", "format": "date", "example": "2026-07-20", "description": "Формат YYYY-MM-DD" },
+                "time": { "type": "string", "example": "19:00", "description": "Формат HH:MM" },
+                "description": { "type": "string", "example": "Ищу компанию для просмотра футбола.", "description": "Описание встречи" },
+                "contactInfo": { "type": "string", "example": "@nick_tele", "description": "Telegram, Viber или номер телефона" },
+                "gender": { "type": "string", "enum": ["ANY", "MALE", "FEMALE"], "example": "ANY", "description": "Критерий пола компании" },
+                "companySize": { "type": "integer", "example": 4, "description": "Ожидаемое количество человек" },
+                "whoPays": { "type": "string", "enum": ["EACH_OWN", "INVITER_PAYS", "FIFTY_FIFTY"], "example": "EACH_OWN", "description": "Кто оплачивает счет" },
+                "budget": { "type": "integer", "example": 600, "description": "Планируемый бюджет встречи на человека" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Встреча успешно создана",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Зустріч «Пиячок» успішно створено!" },
+                "meetup": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "meetup-111" },
+                    "venueId": { "type": "string", "example": "venue-456" },
+                    "userId": { "type": "string", "example": "user-789" },
+                    "dateTime": { "type": "string", "format": "date-time", "example": "2026-07-20T19:00:00.000Z" },
+                    "venue": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string", "example": "П'яний Лис" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не заповнені обов'язкові критерії",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Вибраний заклад не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/messages": {
+      "post": {
+        "tags": ["Messages"],
+        "summary": "Надсилання повідомлення до закладу (публічно)",
+        "description": "Дозволяє будь-якому користувачеві або гостю надіслати повідомлення конкретному закладу (наприклад, питання про наявність місць, бронювання чи пропозицію).",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["venueId", "name", "email", "content"],
+              "properties": {
+                "venueId": { "type": "string", "example": "venue-456-uuid", "description": "ID заведения" },
+                "name": { "type": "string", "example": "Олена", "description": "Имя отправителя" },
+                "email": { "type": "string", "format": "email", "example": "olena@example.com", "description": "Контактная почта" },
+                "content": { "type": "string", "example": "Чи можна замовити столик на терасі на цю п'ятницю?", "description": "Текст сообщения" },
+                "type": { "type": "string", "enum": ["QUESTION", "BOOKING", "FEEDBACK"], "default": "QUESTION", "example": "QUESTION", "description": "Тип сообщения" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Повідомлення успішно створено та відправлено менеджеру",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Повідомлення успішно відправлено! Менеджер зв’яжется з вами." },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "msg-123-uuid" },
+                    "venueId": { "type": "string", "example": "venue-456-uuid" },
+                    "name": { "type": "string", "example": "Олена" },
+                    "email": { "type": "string", "example": "olena@example.com" },
+                    "content": { "type": "string", "example": "Чи можна замовити столик на терасі..." },
+                    "type": { "type": "string", "example": "QUESTION" },
+                    "createdAt": { "type": "string", "format": "date-time", "example": "2026-07-15T12:00:00.000Z" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Пропущено обов'язкові поля",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад із зазначеним ID не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Messages"],
+        "summary": "Отримання списку повідомлень (Для менеджерів та адмінів)",
+        "description": "Повертає вхідні повідомлення. Звичайні користувачі отримують 403. Менеджери бачать повідомлення лише для своїх закладів. Адміністратори бачать усі повідомлення системи.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "Фільтр типу повідомлення (наприклад, BOOKING, QUESTION)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список повідомлень успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "messages": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "msg-123-uuid" },
+                      "venueId": { "type": "string", "example": "venue-456-uuid" },
+                      "name": { "type": "string", "example": "Олена" },
+                      "email": { "type": "string", "example": "olena@example.com" },
+                      "content": { "type": "string", "example": "Чи можна замовити столик..." },
+                      "type": { "type": "string", "example": "QUESTION" },
+                      "createdAt": { "type": "string", "format": "date-time" },
+                      "venue": {
+                        "type": "object",
+                        "properties": {
+                          "name": { "type": "string", "example": "П'яний Лис" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (потрібний токен)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (роль користувача USER)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/news": {
+      "get": {
+        "tags": ["News"],
+        "summary": "Отримання стрічки новин із пагінацією",
+        "description": "Повертає список новин. Підтримує фільтрацію за категоріями та закладами. Звичайні користувачі бачать лише GENERAL категорії або просунуті (isPromoted) новини. SUPERADMIN бачить все.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "Категорія новини (наприклад, GENERAL, EVENT, PROMO)"
+          },
+          {
+            "name": "venueId",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "ID конкретного закладу"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 1,
+            "description": "Номер сторінки"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 9,
+            "description": "Кількість новин на сторінку"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Стрічка новин успішно отримана",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "news": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "news-111" },
+                      "title": { "type": "string", "example": "Відкриття літньої тераси!" },
+                      "content": { "type": "string", "example": "Пзапрошуємо всіх на келих прохолодного сидру..." },
+                      "image": { "type": "string", "x-nullable": true, "example": "/uploads/terrace.jpg" },
+                      "category": { "type": "string", "example": "GENERAL" },
+                      "isPromoted": { "type": "boolean", "example": false },
+                      "venueId": { "type": "string", "example": "venue-456" },
+                      "createdAt": { "type": "string", "format": "date-time" },
+                      "venue": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "example": "venue-456" },
+                          "name": { "type": "string", "example": "П'яний Лис" },
+                          "mainImage": { "type": "string", "example": "/uploads/fox.jpg" },
+                          "address": { "type": "string", "example": "вул. Садова, 12" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": { "type": "integer", "example": 1 },
+                    "totalPages": { "type": "integer", "example": 2 },
+                    "totalItems": { "type": "integer", "example": 15 },
+                    "hasNextPage": { "type": "boolean", "example": true },
+                    "hasPrevPage": { "type": "boolean", "example": false }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["News"],
+        "summary": "Публікація нової новини закладу",
+        "description": "Створює новину закладу. Дозволено лише менеджерам цього конкретного закладу чи суперадміністраторам.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["title", "content", "venueId"],
+              "properties": {
+                "title": { "type": "string", "example": "Щасливі годинники у П'ятницю!" },
+                "content": { "type": "string", "example": "Щоп'ятниці з 17:00 до 19:00 знижка 30% на все крафтове пиво." },
+                "venueId": { "type": "string", "example": "venue-456", "description": "ID закладу, від імені якого публікується новина" },
+                "image": { "type": "string", "example": "/uploads/happy_hour.jpg", "description": "Опціонально. Посилання на завантажене зображення" },
+                "category": { "type": "string", "enum": ["GENERAL", "EVENT", "PROMO"], "default": "GENERAL", "example": "PROMO", "description": "Категорія публікації" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Новина успішно опублікована",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Новину успішно опубліковано!" },
+                "news": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "news-222" },
+                    "title": { "type": "string", "example": "Щасливі години..." },
+                    "content": { "type": "string", "example": "Що п'ятниці..." },
+                    "category": { "type": "string", "example": "PROMO" },
+                    "venueId": { "type": "string", "example": "venue-456" },
+                    "venue": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string", "example": "П'яний Лис" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Пропущено обов'язкові параметри (заголовок, текст або ID закладу)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (роль USER або менеджер намагається опублікувати новину чужого закладу)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад із зазначеним ID не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/news/{newsId}/promote": {
+      "patch": {
+        "tags": ["News"],
+        "summary": "Управління статусом просування новини (isPromoted)",
+        "description": "Дозволяє суперадміністратору закріпити новину або прибрати її з промо-блоку (головного слайдера/топу). Доступно лише для ролі SUPERADMIN.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "newsId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID новини, статус якої потрібно оновити"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["isPromoted"],
+              "properties": {
+                "isPromoted": {
+                  "type": "boolean",
+                  "example": true,
+                  "description": "Прапор просування новини"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус просування успішно оновлено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Статус просування оновлено" },
+                "isPromoted": { "type": "boolean", "example": true }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (немає токена)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (роль користувача неSUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/system-text": {
+      "get": {
+        "tags": ["SystemText"],
+        "summary": "Отримання системного тексту сторінки за її slug",
+        "description": "Повертає заголовок та контент для динамічних інформаційних сторінок (наприклад: 'about', 'rules', 'privacy') за унікальним ідентифікатором. Доступно публічно.",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Унікальний ідентифікатор сторінки (регістронезалежний)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Текст сторінки успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "systemText": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "systext-111-uuid" },
+                    "slug": { "type": "string", "example": "about" },
+                    "title": { "type": "string", "example": "Про проект Пиячок" },
+                    "content": { "type": "string", "example": "<p>Ласкаво просимо до нашої платформи...</p>" },
+                    "updatedAt": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не вказано параметр slug у запиті",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Текст для вказаного slug ще не створено в системі",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "put": {
+        "tags": ["SystemText"],
+        "summary": "Створення або оновлення системного тексту (Тільки для SUPERADMIN)",
+        "description": "Дозволяє супер-адміністратору створювати нові інформаційні блоки або оновлювати існуючі. Якщо вказаний slug не існує — створює новий запис, якщо існує — оновлює title та content.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["slug", "title", "content"],
+              "properties": {
+                "slug": { "type": "string", "example": "about", "description": "Унікальний ідентифікатор (буде автоматично приведений до нижнього регістру)" },
+                "title": { "type": "string", "example": "Про нас" },
+                "content": { "type": "string", "example": "Новий детальний опис нашого сервісу пошуку зустрічей..." }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Текст успішно збережено в базі даних (створено або оновлено)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Системний текст успішно оновлено!" },
+                "systemText": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "systext-111-uuid" },
+                    "slug": { "type": "string", "example": "about" },
+                    "title": { "type": "string", "example": "Про нас" },
+                    "content": { "type": "string", "example": "Новий детальний опис..." }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Пропущено один або кілька обов'язкових параметрів",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ (не передано токен)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (роль користувача не SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/tags": {
+      "get": {
+        "tags": ["Tags"],
+        "summary": "Отримання списку всіх тегів",
+        "description": "Повертає повний список тегів, відсортованих за алфавітом (A-Z, А-Я). Доступно публічно.",
+        "responses": {
+          "200": {
+            "description": "Список тегів успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "tag-111-uuid" },
+                      "name": { "type": "string", "example": "Крафт" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Tags"],
+        "summary": "Створення нового тегу",
+        "description": "Дозволяє авторизованому користувачу створити новий тег. Назва тегу має бути унікальною.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Жива музика",
+                  "description": "Назва тегу (буде автоматично очищена від зайвих пробілів)"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Тег успішно створено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Тег успішно створено" },
+                "tag": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "tag-222-uuid" },
+                    "name": { "type": "string", "example": "Жива музика" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не передано назву тегу або такий тег вже існує в системі",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/upload": {
+      "post": {
+        "tags": ["Upload"],
+        "summary": "Отримання підписаного посилання S3 (Presigned URL) для завантаження файлу",
+        "description": "Дозволяє авторизованому користувачеві отримати тимчасове посилання (`uploadUrl`) для завантаження файлу безпосередньо в S3, а також фінальну публічну адресу файлу (`fileUrl`). Підтримує надсилання даних як через JSON, так і через FormData.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "description": "Дані про файл, що завантажується при передачі через JSON. У разі використання FormData параметри передаються як поля форми.",
+            "schema": {
+              "type": "object",
+              "required": ["filename", "contentType"],
+              "properties": {
+                "filename": {
+                  "type": "string",
+                  "example": "my-avatar.png",
+                  "description": "Ім'я вихідного файлу"
+                },
+                "contentType": {
+                  "type": "string",
+                  "example": "image/png",
+                  "description": "MIME-тип файлу (наприклад: image/jpeg, image/png)"
+                },
+                "folder": {
+                  "type": "string",
+                  "enum": ["temp", "venues", "avatars", "news"],
+                  "default": "temp",
+                  "example": "avatars",
+                  "description": "Цільова папка в S3-бакете"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успішно згенеровано посилання на завантаження",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "uploadUrl": {
+                  "type": "string",
+                  "example": "https://my-bucket.s3.eu-central-1.amazonaws.com/avatars/1721051560000-my-avatar.png?X-Amz-Algorithm=AWS4-HMAC-SHA256...",
+                  "description": "Тимчасове PUT-посилання S3 (діє 5 хвилин), на яке фронтенд повинен надіслати сам файл"
+                },
+                "fileUrl": {
+                  "type": "string",
+                  "example": "https://my-bucket.s3.eu-central-1.amazonaws.com/avatars/1721051560000-my-avatar.png",
+                  "description": "Фінальний публічний URL файлу в S3 для запису в базу даних (наприклад, у полі avatarUrl або mainImage)"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Немає обов'язкових даних про файл (filename или contentType)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ (потрібен Access Token)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка AWS S3 клієнта під час створення посилання",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/user/favorites": {
+      "get": {
+        "tags": ["Favorites"],
+        "summary": "Отримання списку обраних закладів користувача",
+        "description": "Повертає заклади, які авторизований користувач додав до обраного. Підтримує пагінацію, автоматично розраховує середній рейтинг закладу на основі відгуків та підраховує їх кількість.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 1,
+            "description": "Номер сторінки для пагінації"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 9,
+            "description": "Кількість закладі на сторінку"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список обраних закладів успішно сформовано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "venues": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "venue-123-uuid" },
+                      "name": { "type": "string", "example": "П'яний Лис" },
+                      "address": { "type": "string", "example": "вул. Садова, 12" },
+                      "mainImage": { "type": "string", "x-nullable": true, "example": "/uploads/fox.jpg" },
+                      "isFavorite": { "type": "boolean", "example": true },
+                      "rating": { "type": "number", "example": 4.7, "description": "Середній розрахований рейтинг" },
+                      "reviewCount": { "type": "integer", "example": 14, "description": "Загальна кількість відгуків" }
+                    }
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": { "type": "integer", "example": 1 },
+                    "totalPages": { "type": "integer", "example": 2 },
+                    "totalItems": { "type": "integer", "example": 12 },
+                    "hasNextPage": { "type": "boolean", "example": true },
+                    "hasPrevPage": { "type": "boolean", "example": false }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Favorites"],
+        "summary": "Додавання закладу до обраного",
+        "description": "Додає обраний заклад у список користувача. Якщо заклад вже доданий — повертає помилку 400.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["venueId"],
+              "properties": {
+                "venueId": { "type": "string", "example": "venue-123-uuid", "description": "ID закладу, який додається в обране" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Заклад успішно додано до обраного",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Додано до обраного!" }
+              }
+            }
+          },
+          "400": {
+            "description": "ID закладу обов’язковий або заклад вже є в обраному цього користувача",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Favorites"],
+        "summary": "Видалення закладу з обраного",
+        "description": "Видаляє зв'язок закладу та користувача із таблиці обраного за ID закладу.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["venueId"],
+              "properties": {
+                "venueId": { "type": "string", "example": "venue-123-uuid", "description": "ID закладу, який видаляється" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Заклад успішно видалено з обраного",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Видалено з обраного" }
+              }
+            }
+          },
+          "400": {
+            "description": "ID закладу не передано у тілі запиту",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад не знайдено в обраному цього користувача",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/user/me": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Отримання профілю поточного користувача",
+        "description": "Повертає інформацію про авторизованого користувача (ID, ім'я, email, роль, аватар, телефон) на основі переданого Bearer токена.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Дані профілю успішно отримані",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "user-789-uuid" },
+                    "name": { "type": "string", "example": "Дмитро" },
+                    "email": { "type": "string", "format": "email", "example": "dmitro@example.com" },
+                    "role": { "type": "string", "example": "MANAGER", "description": "Роль користувача (USER, MANAGER, ADMIN, SUPERADMIN)" },
+                    "avatarUrl": { "type": "string", "x-nullable": true, "example": "https://my-bucket.s3.amazonaws.com/avatars/my-photo.jpg" },
+                    "phoneNumber": { "type": "string", "x-nullable": true, "example": "+380671234567" },
+                    "createdAt": { "type": "string", "format": "date-time", "example": "2026-01-15T10:30:00.000Z" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (невірний або прострочений токен)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Користувача з ID з токена не знайдено в базі даних",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/user/profile": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Оновлення даних профілю поточного користувача",
+        "description": "Дозволяє авторизованому користувачеві змінити свої персональні дані: ім'я, email, телефон чи аватарку. При зміні email перевіряється його унікальність у системі.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "example": "Дмитро Коваленко" },
+                "email": { "type": "string", "format": "email", "example": "new-email@example.com" },
+                "avatarUrl": { "type": "string", "example": "https://s3.amazonaws.com/new-avatar.jpg" },
+                "phoneNumber": { "type": "string", "example": "+380679998877" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Профіль успішно оновлено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Профіль успішно оновлено!" },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "user-789-uuid" },
+                    "name": { "type": "string", "example": "Дмитро Коваленко" },
+                    "email": { "type": "string", "example": "new-email@example.com" },
+                    "role": { "type": "string", "example": "MANAGER" },
+                    "avatarUrl": { "type": "string", "example": "https://s3.amazonaws.com/new-avatar.jpg" },
+                    "phoneNumber": { "type": "string", "example": "+380679998877" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email вже зайнятий чи ні даних для оновлення",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/user/reviews": {
+      "get": {
+        "tags": ["Reviews"],
+        "summary": "Отримання списку відгуків поточного користувача",
+        "description": "Повертає відгуки та оцінки, які залишив авторизований користувач. Підтримує пагінацію та фільтрацію лише оцінок (без порожніх коментарів).",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 1,
+            "description": "Номер сторінки"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "default": 1,
+            "description": "Кількість відгуків на сторінку"
+          },
+          {
+            "name": "onlyRatings",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "description": "Якщо true, поверне лише відгуки з оцінкою(rating > 0)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список відгуків успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "reviews": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "review-111-uuid" },
+                      "rating": { "type": "integer", "example": 5 },
+                      "text": { "type": "string", "example": "Чудовий заклад, смачне пиво!" },
+                      "userId": { "type": "string", "example": "user-789-uuid" },
+                      "venueId": { "type": "string", "example": "venue-123-uuid" },
+                      "createdAt": { "type": "string", "format": "date-time" },
+                      "venue": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "example": "venue-123-uuid" },
+                          "name": { "type": "string", "example": "П'яний Лис" },
+                          "mainImage": { "type": "string", "x-nullable": true, "example": "/uploads/fox.jpg" },
+                          "type": { "type": "string", "example": "PUB" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": { "type": "integer", "example": 1 },
+                    "totalPages": { "type": "integer", "example": 5 },
+                    "totalItems": { "type": "integer", "example": 5 },
+                    "hasNextPage": { "type": "boolean", "example": true },
+                    "hasPrevPage": { "type": "boolean", "example": false }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Reviews"],
+        "summary": "Видалення власного відгуку",
+        "description": "Видаляє відгук за його ID. Видалити можна лише свій власний відгук.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "ID відгуку, який потрібно видалити"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Відгук успішно видалено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Відгук успішно видалено" }
+              }
+            }
+          },
+          "400": {
+            "description": "Не вказано ID відгуку в query-параметрах",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (відгук не існує або належить іншому користувачеві)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/venues/{id}/analytics": {
+      "get": {
+        "tags": ["Venues"],
+        "summary": "Отримання статистики переглядів закладу",
+        "description": "Повертає агреговану статистику переглядів картки закладу щодня. Доступно лише власнику закладу (менеджеру) або супер-адміністратору.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу, для якого запитується статистика"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика переглядів успішно отримана",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": { "type": "string", "example": "2026-07-15", "description": "Дата у форматі YYYY-MM-DD" },
+                      "count": { "type": "integer", "example": 42, "description": "Кількість унікальних переглядів за цей день" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ (відсутня токен)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (користувач не є власником закладу та не SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад із зазначеним ID не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/venues/{id}/news/{newsId}": {
+      "patch": {
+        "tags": ["Venues"],
+        "summary": "Оновлення новини закладу",
+        "description": "Дозволяє власнику закладу або супер-адміністратору оновити заголовок, контент, зображення або категорію конкретної новини.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу"
+          },
+          {
+            "name": "newsId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID новини, яку потрібно оновити"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string", "example": "Оновлена назва акції" },
+                "content": { "type": "string", "example": "Нові деталі про знижки..." },
+                "image": { "type": "string", "x-nullable": true, "example": "https://s3.amazonaws.com/news/123.jpg" },
+                "category": { "type": "string", "example": "PROMOTION", "description": "Категорія новини з Enum у Prisma" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Новину успішно оновлено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Новину успішно оновлено!" },
+                "news": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "news-555-uuid" },
+                    "venueId": { "type": "string", "example": "venue-123-uuid" },
+                    "title": { "type": "string", "example": "Оновлена назва акції" },
+                    "content": { "type": "string", "example": "Нові деталі про знижки..." },
+                    "image": { "type": "string", "example": "https://s3.amazonaws.com/news/123.jpg" },
+                    "category": { "type": "string", "example": "PROMOTION" },
+                    "createdAt": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ або користувач має роль USER",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (користувач не є власником закладу та не SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад або новину не знайдено (або новина не належить цьому закладу)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Venues"],
+        "summary": "Видалення новини закладу",
+        "description": "Видаляє новину закладу за її ID. Доступно тільки власнику закладу або супер-адміністратору.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу"
+          },
+          {
+            "name": "newsId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID новини, яку потрібно видалити"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Новину успішно видалено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Новину успішно видалено!" }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (користувач не є власником закладу та не SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад або новину не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/venues/{id}/news": {
+      "get": {
+        "tags": ["Venues"],
+        "summary": "Отримання списку новин конкретного закладу",
+        "description": "Повертає всі новини, що належать закладу з вказаним ID, відсортовані від найновіших до найстаріших. Доступно публічно.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу, новини якого потрібно отримати"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список новин успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "news": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "news-555-uuid" },
+                      "venueId": { "type": "string", "example": "venue-123-uuid" },
+                      "title": { "type": "string", "example": "Презентація нового меню!" },
+                      "content": { "type": "string", "example": "Запрошуємо спробувати наші нові крафтові напої..." },
+                      "image": { "type": "string", "x-nullable": true, "example": "https://s3.amazonaws.com/news/menu.jpg" },
+                      "category": { "type": "string", "example": "GENERAL" },
+                      "createdAt": { "type": "string", "format": "date-time" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Venues"],
+        "summary": "Створення нової новини для закладу",
+        "description": "Дозволяє власнику закладу або супер-адміністратору опублікувати нову новину чи акцію. Звичайним користувачам доступ заборонено.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу, для якого створюється новина"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["title", "content"],
+              "properties": {
+                "title": { "type": "string", "example": "Вечір живої музики в цю п'ятницю!" },
+                "content": { "type": "string", "example": "Для вас виступатиме місцевий рок-гурт. Початок о 20:00." },
+                "image": { "type": "string", "example": "https://s3.amazonaws.com/news/music-event.jpg", "description": "URL завантаженого зображення з /api/upload" },
+                "category": { "type": "string", "example": "EVENT", "description": "Категорія новини з Enum (наприклад: EVENT, PROMOTION, GENERAL)" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Новину успішно створено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Новину успішно додано!" },
+                "news": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "news-666-uuid" },
+                    "venueId": { "type": "string", "example": "venue-123-uuid" },
+                    "title": { "type": "string", "example": "Вечір живої музики в цю п'ятницю!" },
+                    "content": { "type": "string", "example": "Для вас виступатиме..." },
+                    "image": { "type": "string", "example": "https://s3.amazonaws.com/news/music-event.jpg" },
+                    "category": { "type": "string", "example": "EVENT" },
+                    "createdAt": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не передано обов'язкові поля (title або content)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ або користувач має роль USER",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Доступ заборонено (користувач не є власником цього закладу і не SUPERADMIN)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад з таким ID не знайдено в базі даних",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/venues/{id}/reviews": {
+      "post": {
+        "tags": ["Reviews"],
+        "summary": "Додавання відгуку або скарги на заклад",
+        "description": "Дозволяє авторизованому користувачу залишити відгук з оцінкою від 1 до 5 або надіслати скаргу модераторам. Метод автоматично перераховує середній рейтинг закладу в базі даних всередині ACID-транзакції.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу, для якого створюється відгук"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["rating"],
+              "properties": {
+                "rating": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 5,
+                  "example": 5,
+                  "description": "Оцінка закладу від 1 до 5 зірок"
+                },
+                "text": {
+                  "type": "string",
+                  "example": "Чудове місце, великий вибір крафту та приємна атмосфера!",
+                  "description": "Текст відгуку (необов'язковий)"
+                },
+                "isComplaint": {
+                  "type": "boolean",
+                  "example": false,
+                  "description": "Прапор, чи є цей відгук скаргою (наприклад, на обман, невідповідність опису)"
+                },
+                "complaintReason": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "Заклад зачинено назавжди за цією адресою",
+                  "description": "Причина скарги (обов'язкова, якщо isComplaint: true)"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Відгук успішно створено, а рейтинг закладу автоматично перераховано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Відгук успішно додано, рейтинг закладу оновлено!" },
+                "review": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "review-999-uuid" },
+                    "rating": { "type": "integer", "example": 5 },
+                    "text": { "type": "string", "example": "Чудове місце..." },
+                    "userId": { "type": "string", "example": "user-789-uuid" },
+                    "venueId": { "type": "string", "example": "venue-123-uuid" },
+                    "isComplaint": { "type": "boolean", "example": false },
+                    "complaintReason": { "type": "string", "x-nullable": true },
+                    "createdAt": { "type": "string", "format": "date-time" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string", "example": "Олександр" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка валідації (оцінка відсутня або виходить за межі 1-5)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ (користувач не увійшов у систему або заблокований)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад з вказаним ID не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера при виконанні транзакції",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/venues/{id}/view": {
+      "post": {
+        "tags": ["Venues"],
+        "summary": "Фіксація перегляду закладу (унікального за 24 години)",
+        "description": "Цей ендпоінт викликається фронтендом при відкритті сторінки закладу. Він перевіряє IP-адресу клієнта і, якщо за останні 24 години переглядів з цієї IP для цього закладу не було, створює новий запис для аналітики. Доступний публічно без авторизації.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу, сторінку якого відкрив користувач"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Запит успішно оброблено (перегляд або зафіксовано як новий, або проігноровано як дублікат)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Новий унікальний перегляд зафіксовано",
+                  "enum": ["Новий унікальний перегляд зафіксовано", "Перегляд вже зафіксовано за останні 24 години"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Заклад з вказаним ID не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/venues/{id}": {
+      "get": {
+        "tags": ["Venues"],
+        "summary": "Отримання детальної інформації про заклад",
+        "description": "Повертає повну інформацію про заклад за його ID, включаючи теги, відсортовані за датою новини та відгуки з іменами авторів. Якщо запит робить авторизований користувач, додатково повертається прапорець `isFavorite`. Доступно публічно.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Дані закладу успішно отримано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "venue": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "758276ea-f44c-4cd9-9545-85778bd6b847" },
+                    "name": { "type": "string", "example": "П'яний Лис" },
+                    "type": { "type": "string", "example": "PUB" },
+                    "address": { "type": "string", "example": "вул. Садова, 12" },
+                    "views": { "type": "integer", "example": 142, "description": "Загальна кількість переглядів" },
+                    "isFavorite": { "type": "boolean", "example": false, "description": "Чи додано заклад до обраного поточним користувачем" },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "example": "tag-1" },
+                          "name": { "type": "string", "example": "Крафт" }
+                        }
+                      }
+                    },
+                    "news": { "type": "array", "items": { "type": "object" } },
+                    "reviews": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Заклад не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Venues"],
+        "summary": "Редагування даних закладу",
+        "description": "Дозволяє оновити будь-які поля закладу. Доступно тільки власнику закладу (менеджеру) або супер-адміністратору. Валідується за допомогою схеми.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "example": "Нова назва закладу" },
+                "address": { "type": "string", "example": "Нова адреса, 45" },
+                "phone": { "type": "string", "x-nullable": true, "example": "+380481234567" },
+                "averageCheck": { "type": "integer", "example": 350 },
+                "hasWifi": { "type": "boolean", "example": true },
+                "tags": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "example": ["Крафт", "Укриття", "Тераса"]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Заклад успішно відредаговано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Заклад успішно відредаговано!" },
+                "venue": { "type": "object" }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка валідації вхідних даних",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Недостатньо прав для редагування (користувач не є власником)",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Venues"],
+        "summary": "Видалення закладу",
+        "description": "Повністю видаляє заклад та пов'язані з ним каскадні дані з бази даних. Доступно тільки власнику закладу або супер-адміністратору.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID закладу, який потрібно видалити"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Заклад успішно видалено",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Заклад та всі пов’язані з ним дані успішно видалено!" }
+              }
+            }
+          },
+          "401": {
+            "description": "Неавторизований доступ",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "Недостатньо прав для видалення",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "404": {
+            "description": "Заклад не знайдено",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/venues": {
+      "get": {
+        "tags": ["Venues"],
+        "summary": "Отримання списку закладу з фільтрацією та пагінацією",
+        "description": "Повертає відфільтрований та відсортований список закладів разом з усім переліком доступних тегів для зручної побудови фільтрів на фронтенді. Підтримує сортування за відстанню (гео-координатами).",
+        "parameters": [
+          { "name": "page", "in": "query", "type": "integer", "default": 1, "description": "Номер сторінки" },
+          { "name": "limit", "in": "query", "type": "integer", "default": 9, "description": "Елементів на сторінці" },
+          { "name": "search", "in": "query", "type": "string", "description": "Пошук за назвою або тегами" },
+          { "name": "type", "in": "query", "type": "string", "description": "Тип закладу (PUB, RESTAURANT тощо)" },
+          { "name": "minCheck", "in": "query", "type": "integer", "description": "Мінімальний середній чек" },
+          { "name": "maxCheck", "in": "query", "type": "integer", "description": "Максимальний середній чек" },
+          { "name": "tags", "in": "query", "type": "string", "description": "Теги через кому (наприклад: Крафт,Тераса)" },
+          { "name": "hasWifi", "in": "query", "type": "boolean", "description": "Фільтр наявності Wi-Fi" },
+          { "name": "hasParking", "in": "query", "type": "boolean", "description": "Фільтр наявності парковки" },
+          { "name": "hasLiveMusic", "in": "query", "type": "boolean", "description": "Фільтр живої музики" },
+          { "name": "sortBy", "in": "query", "type": "string", "enum": ["createdAt", "rating", "averageCheck", "name", "distance"], "default": "createdAt" },
+          { "name": "order", "in": "query", "type": "string", "enum": ["asc", "desc"], "default": "desc" },
+          { "name": "lat", "in": "query", "type": "number", "description": "Широта поточного користувача (потрібна для сортування за distance)" },
+          { "name": "lng", "in": "query", "type": "number", "description": "Довгота поточного користувача (потрібна для сортування за distance)" },
+          { "name": "myOwn", "in": "query", "type": "boolean", "description": "Тільки для MANAGER/ADMIN: отримати суто мої заклади" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успішно завантажено список закладів",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "venues": {
+                  "type": "array",
+                  "items": { "type": "object" }
+                },
+                "allTags": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "name": { "type": "string" }
+                    }
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "currentPage": { "type": "integer" },
+                    "totalPages": { "type": "integer" },
+                    "totalItems": { "type": "integer" },
+                    "hasNextPage": { "type": "boolean" },
+                    "hasPrevPage": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Venues"],
+        "summary": "Створення нового закладу",
+        "description": "Дозволяє користувачам з ролями MANAGER та SUPERADMIN додати новий заклад у каталог. Заклади від менеджерів потрапляють на модерацію.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["name", "type", "mainImage", "address", "workingHours", "averageCheck"],
+              "properties": {
+                "name": { "type": "string", "example": "П'яний Лис" },
+                "type": { "type": "string", "example": "PUB" },
+                "mainImage": { "type": "string", "example": "/uploads/temp-fox.jpg", "description": "Тимчасовий шлях до фото" },
+                "images": { "type": "array", "items": { "type": "string" }, "example": ["/uploads/temp-interior.jpg"] },
+                "address": { "type": "string", "example": "вулиця Садова, 12" },
+                "workingHours": { "type": "string", "example": "10:00 - 23:00" },
+                "averageCheck": { "type": "integer", "example": 350 },
+                "description": { "type": "string", "example": "Затишний паб з великим вибором пива..." },
+                "phone": { "type": "string", "example": "+380671234567" },
+                "tags": { "type": "array", "items": { "type": "string" }, "example": ["Крафт", "Бургери"] },
+                "latitude": { "type": "number", "example": 46.4825 },
+                "longitude": { "type": "number", "example": 30.7233 },
+                "hasWifi": { "type": "boolean", "example": true },
+                "hasParking": { "type": "boolean", "example": true },
+                "hasLiveMusic": { "type": "boolean", "example": false }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Заклад успішно додано",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Заклад успішно створено та відправлено на модерацію до Адміністратора." },
+                "venue": { "type": "object" }
+              }
+            }
+          },
+          "400": {
+            "description": "Не заповнено обов'язкові поля",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "401": {
+            "description": "Користувач не авторизований",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "403": {
+            "description": "У вас немає ролі MANAGER або SUPERADMIN",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          },
+          "500": {
+            "description": "Внутрішня помилка сервера",
+            "schema": { "$ref": "#/definitions/ErrorResponse" }
+          }
+        }
+      }
+    }
+  },
+
+  "definitions": {
+    "Category": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "cat-123-uuid" },
+        "name": { "type": "string", "example": "Кращі тераси міста" },
+        "description": { "type": "string", "example": "Підбірка закладів з найзатишнішими літніми терасами" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "CategoryWithVenues": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "cat-123-uuid" },
+        "name": { "type": "string", "example": "Кращі тераси міста" },
+        "description": { "type": "string", "example": "Підбірка закладів з найзатишнішими літніми терасами" },
+        "venues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "venue": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string", "example": "venue-456-uuid" },
+                  "name": { "type": "string", "example": "П'яний Лис" },
+                  "address": { "type": "string", "example": "вул. Садова, 12" },
+                  "rating": { "type": "number", "format": "float", "example": 4.8 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "News": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "news-789-uuid" },
+        "title": { "type": "string", "example": "Грандіозне відкриття нового арт-простору" },
+        "content": { "type": "string", "example": "Вже цієї п'ятниці відбудеться..." },
+        "category": { "type": "string", "example": "Події" },
+        "image": { "type": "string", "example": "https://example.com/image.jpg" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Review": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "review-111-uuid" },
+        "text": { "type": "string", "example": "Чудове місце, рекомендую!" },
+        "rating": { "type": "integer", "example": 5 },
+        "venueId": { "type": "string", "example": "venue-456-uuid" },
+        "userId": { "type": "string", "example": "user-789-uuid" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "user-abc-123-uuid" },
+        "email": { "type": "string", "example": "moderator@piyachok.com" },
+        "role": { "type": "string", "example": "MANAGER" },
+        "isBanned": { "type": "boolean", "example": false }
+      }
+    },
+    "VenueMini": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "venue-456-uuid" },
+        "name": { "type": "string", "example": "П'яний Лис" },
+        "isApproved": { "type": "boolean", "example": true }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string", "example": "Внутрішня помилка сервера / Доступ заборонено" }
+      }
+    },
+    "Pagination": {
+      "type": "object",
+      "properties": {
+        "currentPage": { "type": "integer", "example": 1 },
+        "totalPages": { "type": "integer", "example": 5 },
+        "totalItems": { "type": "integer", "example": 72 },
+        "hasNextPage": { "type": "boolean", "example": true },
+        "hasPrevPage": { "type": "boolean", "example": false }
+      }
+    }
+  }
+}

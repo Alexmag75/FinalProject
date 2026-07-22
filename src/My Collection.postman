@@ -1,0 +1,2444 @@
+{
+  "info": {
+    "_postman_id": "a4e6b38a-ed2f-426a-a5fa-e7b1bd1967ef",
+    "name": "My Collection",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53966367"
+  },
+  "item": [
+    {
+      "name": "piyachok",
+      "item": [
+        {
+          "name": "admin",
+          "item": [
+            {
+              "name": "analytics",
+              "item": [
+                {
+                  "name": "analytics",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyMDBjYjg1My1jOTAyLTQxMTUtOTMxMC04NTkyODA4ODY4N2YiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgxMDEwNzQxLCJleHAiOjE3ODEwMTE2NDF9.Go6u61rJ7YIkhmjKUfbRa1NrIqztDOxnnz9WU7-5CL0",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/admin/analytics?days=5",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "admin",
+                        "analytics"
+                      ],
+                      "query": [
+                        {
+                          "key": "days",
+                          "value": "5"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "categories",
+              "item": [
+                {
+                  "name": "list_categories",
+                  "request": {
+                    "method": "GET",
+                    "header": []
+                  },
+                  "response": []
+                },
+                {
+                  "name": "create_categories",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{supabase_service_role_api_key_1ddu}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"name\":\"футбол\",\r\n    \"description\":\"В компании посмотреть футбол\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/admin/categories",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "admin",
+                        "categories"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "create_categories Copy",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{supabase_service_role_api_key_1ddu}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"name\":\"футбол\",\r\n    \"description\":\"В компании посмотреть футбол\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/admin/categories",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "admin",
+                        "categories"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "news",
+              "item": [
+                {
+                  "name": "[newsId]",
+                  "item": [
+                    {
+                      "name": "edit_news",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{auth_secret_10qd}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"title\": \"Оновлений заголовок новини\",\r\n  \"content\": \"Оновлений текст новини\",\r\n  \"category\": \"Лайфстайл\",\r\n  \"image\": \"https://images.unsplash.com/photo-1514933651103-005eec06c04b\"\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/admin/news?newsId=fgfdg21f31g3dfgfd",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "admin",
+                            "news"
+                          ],
+                          "query": [
+                            {
+                              "key": "newsId",
+                              "value": "fgfdg21f31g3dfgfd"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "delete_news",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{supabase_service_role_api_key_10qd}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/admin/news/?newsId=g;lfgdfgfdg2fdg2",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "admin",
+                        "news",
+                        ""
+                      ],
+                      "query": [
+                        {
+                          "key": "newsId",
+                          "value": "g;lfgdfgfdg2fdg2"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "reviews",
+              "item": [
+                {
+                  "name": "[reviewId]",
+                  "item": [
+                    {
+                      "name": "edit_review",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MWZkNzczNy04ZjBiLTQyOWUtOTJlNy02NWYyZDU2ZjQ4OTUiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpdEBnbWFpbC5jb20iLCJyb2xlIjoiU1VQRVJBRE1JTiIsImlhdCI6MTc4NDA5OTAyMSwiZXhwIjoxNzg0MDk5OTIxfQ.weT48ejULoCc3uT6z7M0YU_0RIe7sShqzaTwoplfH2s",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"text\": \"Текст відгуку змінено\"\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/admin/reviews/?reviewId=sd23ds23sfsdf",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "admin",
+                            "reviews",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "reviewId",
+                              "value": "sd23ds23sfsdf",
+                              "type": "text"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "delete_review",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MWZkNzczNy04ZjBiLTQyOWUtOTJlNy02NWYyZDU2ZjQ4OTUiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpdEBnbWFpbC5jb20iLCJyb2xlIjoiU1VQRVJBRE1JTiIsImlhdCI6MTc4NDA5OTAyMSwiZXhwIjoxNzg0MDk5OTIxfQ.weT48ejULoCc3uT6z7M0YU_0RIe7sShqzaTwoplfH2s",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/admin/reviews/?reviewId",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "admin",
+                        "reviews",
+                        ""
+                      ],
+                      "query": [
+                        {
+                          "key": "reviewId",
+                          "value": null,
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "users",
+              "item": [
+                {
+                  "name": "[id]",
+                  "item": [
+                    {
+                      "name": "edit_role",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MWZkNzczNy04ZjBiLTQyOWUtOTJlNy02NWYyZDU2ZjQ4OTUiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpdEBnbWFpbC5jb20iLCJyb2xlIjoiU1VQRVJBRE1JTiIsImlhdCI6MTc4NDA5OTAyMSwiZXhwIjoxNzg0MDk5OTIxfQ.weT48ejULoCc3uT6z7M0YU_0RIe7sShqzaTwoplfH2s",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"role\": \"MANAGER\",\r\n  \"isBanned\": false\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/admin/users/?id=gdfgfdgf121gf",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "admin",
+                            "users",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "id",
+                              "value": "gdfgfdgf121gf",
+                              "type": "text"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "delete_user",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MWZkNzczNy04ZjBiLTQyOWUtOTJlNy02NWYyZDU2ZjQ4OTUiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpdEBnbWFpbC5jb20iLCJyb2xlIjoiU1VQRVJBRE1JTiIsImlhdCI6MTc4NDA5OTAyMSwiZXhwIjoxNzg0MDk5OTIxfQ.weT48ejULoCc3uT6z7M0YU_0RIe7sShqzaTwoplfH2s",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                          "raw": "http://localhost:3000/api/admin/users/?id=gdfgfdgf121gf",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "admin",
+                            "users",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "id",
+                              "value": "gdfgfdgf121gf"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "list_users",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1MWZkNzczNy04ZjBiLTQyOWUtOTJlNy02NWYyZDU2ZjQ4OTUiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpdEBnbWFpbC5jb20iLCJyb2xlIjoiU1VQRVJBRE1JTiIsImlhdCI6MTc4NDA5OTAyMSwiZXhwIjoxNzg0MDk5OTIxfQ.weT48ejULoCc3uT6z7M0YU_0RIe7sShqzaTwoplfH2s",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/admin/users",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "admin",
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "venues",
+              "item": [
+                {
+                  "name": "[id]",
+                  "item": [
+                    {
+                      "name": "rating",
+                      "item": [
+                        {
+                          "name": "new_rating",
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{supabase_service_role_api_key_0nav}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "PATCH",
+                            "header": [],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\r\n  \"newRating\": 4.9\r\n}",
+                              "options": {
+                                "raw": {
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "http://localhost:3000/api/admin/venues/3f9d2c2d-5d39-4111-b974-233c868e2134/rating",
+                              "protocol": "http",
+                              "host": [
+                                "localhost"
+                              ],
+                              "port": "3000",
+                              "path": [
+                                "api",
+                                "admin",
+                                "venues",
+                                "3f9d2c2d-5d39-4111-b974-233c868e2134",
+                                "rating"
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "transfer",
+                      "item": [
+                        {
+                          "name": "transfer_venues",
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{supabase_service_role_api_key_0nav}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "PATCH",
+                            "header": [],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\r\n  \"newUserId\": \"3f9d2c2d-5d39-4111-b974-233c868e2134\" \r\n}",
+                              "options": {
+                                "raw": {
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "http://localhost:3000/api/admin/venues/3f9d2c2d-5d39-4111-b974-233c868e2134/transfer",
+                              "protocol": "http",
+                              "host": [
+                                "localhost"
+                              ],
+                              "port": "3000",
+                              "path": [
+                                "api",
+                                "admin",
+                                "venues",
+                                "3f9d2c2d-5d39-4111-b974-233c868e2134",
+                                "transfer"
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "status_venue",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{supabase_service_role_api_key_0nav}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"isApproved\": true\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/admin/venues/?id=3f9d2c2d-5d39-4111-b974-233c868e2134",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "admin",
+                            "venues",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "id",
+                              "value": "3f9d2c2d-5d39-4111-b974-233c868e2134"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "delete_venue",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{supabase_service_role_api_key_0nav}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "DELETE",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"isApproved\": true\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/admin/venues/?id=3f9d2c2d-5d39-4111-b974-233c868e2134",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "admin",
+                            "venues",
+                            ""
+                          ],
+                          "query": [
+                            {
+                              "key": "id",
+                              "value": "3f9d2c2d-5d39-4111-b974-233c868e2134"
+                            }
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "pending",
+                  "item": [
+                    {
+                      "name": "pending_venue",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5MThjMGUzZC0xMDYwLTRiMGYtODFjOS1kY2I0MzAwNzRhNWUiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpdEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MTAxNTg2MywiZXhwIjoxNzgxMDE2NzYzfQ.AbUU1bRnCBbPBdm-t_OmW_IaR3pGfnWmkrn5DpPbuhE",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                          "raw": "http://localhost:3000/api/admin/venues/pending",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "admin",
+                            "venues",
+                            "pending"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "list_venues",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{supabase_service_role_api_key_1ddu}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/admin/venues",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "admin",
+                        "venues"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "auth",
+          "item": [
+            {
+              "name": "delete",
+              "item": [
+                {
+                  "name": "delete",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1Y2MwNTI1Yi0xZGI3LTQ4YWYtYjUyZC05OGFkMTlkOGVkY2QiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpdEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MDkxNzYwMywiZXhwIjoxNzgwOTE4NTAzfQ.NHfyf8rFd3RdXMV1gLZKtiXUCK8GOarAhMdoEEGbHV0",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/delete",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "delete"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "forgot-password",
+              "item": [
+                {
+                  "name": "forgot-password",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"user@example.com\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/forgot-password",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "forgot-password"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "login",
+              "item": [
+                {
+                  "name": "login",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"aleksandrmargrari@gmail.com\",\r\n  \"password\": \"mysecretpassword\"  \r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/login",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "logout",
+              "item": [
+                {
+                  "name": "logout",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Cookie",
+                        "value": "{{json_web_token_0drs}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"token\": \"d061bbc92df60005cf274e9642052ee7a8348c4d38619565a6759a7a003ab71d\",\r\n  \"newPassword\": \"super_123\"\r\n}\r\n",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/logout",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "logout"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "logout-all",
+              "item": [
+                {
+                  "name": "logout-all",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{auth_secret_0nav}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"token\": \"d061bbc92df60005cf274e9642052ee7a8348c4d38619565a6759a7a003ab71d\",\r\n  \"newPassword\": \"super_123\"\r\n}\r\n",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/logout-all",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "logout-all"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "refresh",
+              "item": [
+                {
+                  "name": "refresh",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": " {\r\n  \"refreshToken\": \"{{json_web_token_0g8t}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/refresh",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "refresh"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "register",
+              "item": [
+                {
+                  "name": "register",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"yaroslav@test.com\",\r\n  \"password\": \"mysecretpassword\",\r\n  \"name\": \"Ярослав\",\r\n  \"role\": \"SUPERADMIN\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/register",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "reset-password",
+              "item": [
+                {
+                  "name": "reset-password",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"token\": \"d061bbc92df60005cf274e9642052ee7a8348c4d38619565a6759a7a003ab71d\",\r\n  \"newPassword\": \"super_123\"\r\n}\r\n",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/reset-password",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "reset-password"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "verify",
+              "item": [
+                {
+                  "name": "verify",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/auth/verify?token={{json_web_token_0g8t}}",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "auth",
+                        "verify"
+                      ],
+                      "query": [
+                        {
+                          "key": "token",
+                          "value": "{{json_web_token_0g8t}}"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "categories",
+          "item": [
+            {
+              "name": "[id]",
+              "item": [
+                {
+                  "name": "all_venues_categories",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/categories/?id=06d282bd-558f-4e55-8611-6e16efda0c06",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "categories",
+                        ""
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "06d282bd-558f-4e55-8611-6e16efda0c06"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "categories",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/categories",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "categories"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "favorites",
+          "item": [
+            {
+              "name": "favorites",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzMWE2ZGM5Zi0wNzUyLTQ2Y2ItOWU4NC0xNjY3MzNmYWU5MmEiLCJlbWFpbCI6ImFsZWtAZ21haWwuY29tIiwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3ODA5MjM3MzAsImV4cCI6MTc4MDkyNDYzMH0.TyM-vPgdfZUczFcPJRLQfHpo1-QFuOJSf4Gt36o15-4",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"venueId\": \"5223afcd-8ef8-4d58-b7f3-d0b0d24e93b8\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/favorites",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "favorites"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "favorites",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzMWE2ZGM5Zi0wNzUyLTQ2Y2ItOWU4NC0xNjY3MzNmYWU5MmEiLCJlbWFpbCI6ImFsZWtAZ21haWwuY29tIiwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3ODA5MzYxMjUsImV4cCI6MTc4MDkzNzAyNX0.8uTpmUVVIsx0maLyjiFJIWoEOC__Jg32aLn4jyCO4qE",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/favorites",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "favorites"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "favorites",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzMWE2ZGM5Zi0wNzUyLTQ2Y2ItOWU4NC0xNjY3MzNmYWU5MmEiLCJlbWFpbCI6ImFsZWtAZ21haWwuY29tIiwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3ODA5MjM3MzAsImV4cCI6MTc4MDkyNDYzMH0.TyM-vPgdfZUczFcPJRLQfHpo1-QFuOJSf4Gt36o15-4",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"venueId\": \"5223afcd-8ef8-4d58-b7f3-d0b0d24e93b8\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/favorites",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "favorites"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "feedback",
+          "item": [
+            {
+              "name": "feedback",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_secret_0nav}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"name\": \"Александр Тестер\",\r\n  \"email\": \"aleksandrmargrarit@gmail.com\",\r\n  \"category\": \"COMPLAINT\",\r\n  \"venueId\": \"5223afcd-8ef8-4d58-b7f3-d0b0d24e93b8\",\r\n  \"message\": \"В данном заведении продают алкоголь лицам не достигшим 18 лет, а также шумно после 22:00. Разберитесь с модерацией!\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/feedback",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "feedback"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "meetups",
+          "item": [
+            {
+              "name": "meetups",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyMDBjYjg1My1jOTAyLTQxMTUtOTMxMC04NTkyODA4ODY4N2YiLCJlbWFpbCI6ImFsZWtzYW5kcm1hcmdyYXJpQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzgxMDEwNzQxLCJleHAiOjE3ODEwMTE2NDF9.Go6u61rJ7YIkhmjKUfbRa1NrIqztDOxnnz9WU7-5CL0",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"venueId\": \"7f6babd2-e94b-4701-93cb-0e9dcf4bd4ff\", \r\n  \"date\": \"2026-06-15T00:00:00.000Z\",\r\n  \"time\": \"19:00\",\r\n  \"description\": \"Ищем веселую компанию попеть рок в караоке и попить крафтового сидра!\",\r\n  \"contactInfo\": \"@alex_drink_pro\",\r\n  \"gender\": \"ANY\",\r\n  \"companySize\": 4,\r\n  \"whoPays\": \"EACH_OWN\",\r\n  \"budget\": 500\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/meetups",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "meetups"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "meetups-id",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"venueId\": \"7f6babd2-e94b-4701-93cb-0e9dcf4bd4ff\", \r\n  \"date\": \"2026-06-15T00:00:00.000Z\",\r\n  \"time\": \"19:00\",\r\n  \"description\": \"Ищем веселую компанию попеть рок в караоке и попить крафтового сидра!\",\r\n  \"contactInfo\": \"@alex_drink_pro\",\r\n  \"gender\": \"ANY\",\r\n  \"companySize\": 4,\r\n  \"whoPays\": \"EACH_OWN\",\r\n  \"budget\": 500\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/meetups?venueId=7f6babd2-e94b-4701-93cb-0e9dcf4bd4ff",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "meetups"
+                  ],
+                  "query": [
+                    {
+                      "key": "venueId",
+                      "value": "7f6babd2-e94b-4701-93cb-0e9dcf4bd4ff",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "messages",
+          "item": [
+            {
+              "name": "messages",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"venueId\": \"7f6babd2-e94b-4701-93cb-0e9dcf4bd4ff\",\r\n  \"name\": \"Олександр\",\r\n  \"email\": \"alex.test@gmail.com\",\r\n  \"content\": \"У вас на сторінці написано, що ви працюєте до 23:00, але вчора о 21:30 двері вже були зачинені! Виправте графік.\",\r\n  \"type\": \"COMPLAINT\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/messages",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "messages"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "messages_venue",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{json_web_token_1ddu}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/messages?type=QUESTION",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "messages"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "QUESTION"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "news",
+          "item": [
+            {
+              "name": "[newsId]",
+              "item": [
+                {
+                  "name": "promote",
+                  "item": [
+                    {
+                      "name": "news_promate",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{json_web_token_0v7b}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"isPromoted\": true\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/news/758276ea-f44c-4cd9-9545-85778bd6b847/promote",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "news",
+                            "758276ea-f44c-4cd9-9545-85778bd6b847",
+                            "promote"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "add_news",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{json_web_token_07xf}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"title\": \"Свежее поступление сидра!\",\r\n  \"content\": \"Привезли 5 новых сортов от локальных пивоварен.\",\r\n  \"venueId\": \"3f9d2c2d-5d39-4111-b974-233c868e2134\",\r\n  \"category\": \"GENERAL\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/news",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "news"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "news",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"venueId\": \"7f6babd2-e94b-4701-93cb-0e9dcf4bd4ff\",\r\n  \"title\": \"Счастливые часы: 1+1 на все сидры! 🍏\",\r\n  \"content\": \"Каждый вторник и четверг с 16:00 до 19:00 заказывай любой бокал крафтового рок-сидра, а второй получай абсолютно бесплатно! Бери друзей и заходи к нам.\",\r\n  \"image\": \"https://example.com/promo-cider.jpg\",\r\n  \"category\": \"PROMOTION\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/news?page=1&limit=5",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "news"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "5"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "system-texts",
+          "item": [
+            {
+              "name": "system-texts",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{supabase_service_role_api_key_1ddu}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"slug\": \"rules\",\r\n  \"title\": \"Правила поведінки на зустрічах «Пиячок»\",\r\n  \"content\": \"1. Будьте ввічливими. 2. Дотримуйтесь культури споживання напоїв.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/system-text?slug=terms",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "system-text"
+                  ],
+                  "query": [
+                    {
+                      "key": "slug",
+                      "value": "terms"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "system-texts",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/system-text?slug=privacy",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "system-text"
+                  ],
+                  "query": [
+                    {
+                      "key": "slug",
+                      "value": "privacy"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "tags",
+          "item": [
+            {
+              "name": "tags-ad",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzMWE2ZGM5Zi0wNzUyLTQ2Y2ItOWU4NC0xNjY3MzNmYWU5MmEiLCJlbWFpbCI6ImFsZWtAZ21haWwuY29tIiwicm9sZSI6IlNVUEVSQURNSU4iLCJpYXQiOjE3ODA5MjUyNzAsImV4cCI6MTc4MDkyNjE3MH0.1YJOKW2tNMdM2IB6MccH6nHqYkwXnOagv7iLW8kVqGY",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"name\": \"Терраса\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/tags",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "tags"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "tags",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"name\": \"Терраса\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/tags",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "tags"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "upload",
+          "item": [
+            {
+              "name": "upload",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{supabase_service_role_api_key_1ddu}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"filename\": \"draft-beer.jpg\",\r\n  \"contentType\": \"image/jpeg\",\r\n  \"folder\": \"venues\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/upload",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "upload"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "user",
+          "item": [
+            {
+              "name": "favorites",
+              "item": [
+                {
+                  "name": "favorites_venue",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{supabase_service_role_api_key_1ddu}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"venueId\": \"ID_ЗАКЛАДУ_З_БАЗИ\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/user/favorites",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "user",
+                        "favorites"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "list_favotites",
+                  "request": {
+                    "method": "GET",
+                    "header": []
+                  },
+                  "response": []
+                },
+                {
+                  "name": "delete_favorite",
+                  "request": {
+                    "method": "GET",
+                    "header": []
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "me",
+              "item": [
+                {
+                  "name": "me",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/user/me",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "user",
+                        "me"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "profile",
+              "item": [
+                {
+                  "name": "profile",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{supabase_service_role_api_key_0omv}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PATCH",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"name\": \"al\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/user/profile",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "user",
+                        "profile"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "reviews",
+              "item": [
+                {
+                  "name": "list_reviews",
+                  "request": {
+                    "method": "GET",
+                    "header": []
+                  },
+                  "response": []
+                },
+                {
+                  "name": "del_reviews",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{auth_secret_0omv}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "http://localhost:3000/api/user/reviews?id=xcbvcxvvxcv2v32v3d",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "user",
+                        "reviews"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "xcbvcxvvxcv2v32v3d"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "venues",
+          "item": [
+            {
+              "name": "[id]",
+              "item": [
+                {
+                  "name": "analytics",
+                  "item": [
+                    {
+                      "name": "visits",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{supabase_service_role_api_key_0iaw}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                          "raw": "http://localhost:3000/api/venues/d73c57a3-29cc-4532-ab06-248d1bb124e8/analytics",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "venues",
+                            "d73c57a3-29cc-4532-ab06-248d1bb124e8",
+                            "analytics"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "news",
+                  "item": [
+                    {
+                      "name": "[newsId]",
+                      "item": [
+                        {
+                          "name": "edit_news",
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{supabase_service_role_api_key_0iaw}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "PATCH",
+                            "header": [],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\r\n  \"title\": \"Свіжі знижки на вихідні!\",\r\n  \"category\": \"PROMOTION\"\r\n}",
+                              "options": {
+                                "raw": {
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "http://localhost:3000/api/venues/d73c57a3-29cc-4532-ab06-248d1bb124e8/news/7de43774-baf5-4a6a-af7e-acb9325d2bfc",
+                              "protocol": "http",
+                              "host": [
+                                "localhost"
+                              ],
+                              "port": "3000",
+                              "path": [
+                                "api",
+                                "venues",
+                                "d73c57a3-29cc-4532-ab06-248d1bb124e8",
+                                "news",
+                                "7de43774-baf5-4a6a-af7e-acb9325d2bfc"
+                              ]
+                            }
+                          },
+                          "response": []
+                        },
+                        {
+                          "name": "del_news",
+                          "request": {
+                            "auth": {
+                              "type": "bearer",
+                              "bearer": [
+                                {
+                                  "key": "token",
+                                  "value": "{{supabase_service_role_api_key_0iaw}}",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "method": "DELETE",
+                            "header": [],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\r\n  \"title\": \"Свіжі знижки на вихідні!\",\r\n  \"category\": \"PROMOTION\"\r\n}",
+                              "options": {
+                                "raw": {
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "http://localhost:3000/api/venues/d73c57a3-29cc-4532-ab06-248d1bb124e8/news/7de43774-baf5-4a6a-af7e-acb9325d2bfc",
+                              "protocol": "http",
+                              "host": [
+                                "localhost"
+                              ],
+                              "port": "3000",
+                              "path": [
+                                "api",
+                                "venues",
+                                "d73c57a3-29cc-4532-ab06-248d1bb124e8",
+                                "news",
+                                "7de43774-baf5-4a6a-af7e-acb9325d2bfc"
+                              ]
+                            }
+                          },
+                          "response": []
+                        }
+                      ]
+                    },
+                    {
+                      "name": "list_news",
+                      "request": {
+                        "method": "GET",
+                        "header": []
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "add_news_venue",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{supabase_service_role_api_key_0iaw}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"title\": \"Нове крафтове пиво на крані!\",\r\n  \"content\": \"Сьогодні підключили ексклюзивну варку Milk Stout. Чекаємо на дегустацію!\",\r\n  \"category\": \"PROMOTION\"\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/venues/d73c57a3-29cc-4532-ab06-248d1bb124e8/news",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "venues",
+                            "d73c57a3-29cc-4532-ab06-248d1bb124e8",
+                            "news"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "reviews",
+                  "item": [
+                    {
+                      "name": "reviews",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{auth_secret_14r3}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n  \"rating\": 5,\r\n  \"text\": \"Смачна кухня та привітний персонал!\",\r\n  \"isComplaint\": false\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "http://localhost:3000/api/venues/9ebfa472-beb3-4daf-8253-bfdfc74225f2/reviews",
+                          "protocol": "http",
+                          "host": [
+                            "localhost"
+                          ],
+                          "port": "3000",
+                          "path": [
+                            "api",
+                            "venues",
+                            "9ebfa472-beb3-4daf-8253-bfdfc74225f2",
+                            "reviews"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "view",
+                  "item": [
+                    {
+                      "name": "view",
+                      "request": {
+                        "method": "GET",
+                        "header": []
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "venue",
+                  "request": {
+                    "method": "GET",
+                    "header": []
+                  },
+                  "response": []
+                },
+                {
+                  "name": "read_venue",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{auth_secret_14r3}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"name\": \"П'яний Лис (Оновлений)\",\r\n  \"averageCheck\": 450,\r\n  \"tags\": [\"Крафт\", \"Жива музика\"]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/venues/?id=3f9d2c2d-5d39-4111-b974-233c868e2134",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "venues",
+                        ""
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "3f9d2c2d-5d39-4111-b974-233c868e2134"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "del_venue",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{auth_secret_14r3}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"name\": \"П'яний Лис (Оновлений)\",\r\n  \"averageCheck\": 450,\r\n  \"tags\": [\"Крафт\", \"Жива музика\"]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/api/venues/?id=3f9d2c2d-5d39-4111-b974-233c868e2134",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "api",
+                        "venues",
+                        ""
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "3f9d2c2d-5d39-4111-b974-233c868e2134"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "list_sort_venue",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/api/venues?sortBy=distance&lat=46.4825&lng=30.7233&hasWifi=true",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "venues"
+                  ],
+                  "query": [
+                    {
+                      "key": "sortBy",
+                      "value": "distance"
+                    },
+                    {
+                      "key": "lat",
+                      "value": "46.4825"
+                    },
+                    {
+                      "key": "lng",
+                      "value": "30.7233"
+                    },
+                    {
+                      "key": "hasWifi",
+                      "value": "true"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add_revues_admin",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{auth_secret_0vli}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"name\": \"Новий Крафтовий Паб\",\r\n  \"type\": \"PUB\",\r\n  \"mainImage\": \"/uploads/temp-beer.jpg\",\r\n  \"address\": \"Одеса, вул. Дерибасівська, 1\",\r\n  \"workingHours\": \"12:00 - 22:00\",\r\n  \"averageCheck\": 400,\r\n  \"hasWifi\": true,\r\n  \"tags\": [\"Крафт\", \"Затишок\"]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:3000/api/venues",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "api",
+                    "venues"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
