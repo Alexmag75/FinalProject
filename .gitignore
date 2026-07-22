@@ -25,7 +25,7 @@ yarn-error.log*
 .env*.local
 .idea/
 npx
-.env*
+.env
 
 .vercel
 
